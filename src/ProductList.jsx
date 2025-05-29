@@ -6,13 +6,15 @@ import { addItem } from './CartSlice';
 function ProductList({ onHomeClick }) {
 
     const dispatch = useDispatch()
-    const cartItems = useSelector(state => state.cart)
+    const cart = useSelector(state => state.cart)
 
     const [showCart, setShowCart] = useState(false);
     const [showPlants, setShowPlants] = useState(false); // State to control the visibility of the About Us page
 
+
     const [addedToCart, setAddedToCart] = useState({})
-    
+    const [cartItems, setCartItems] = useState(0) 
+
     const plantsArray = [
         {
             category: "Air Purifying Plants",
@@ -241,6 +243,11 @@ function ProductList({ onHomeClick }) {
         textDecoration: 'none',
     }
 
+    useEffect(()=>{
+        setCartItems(calculateTotalQuantity)
+        
+    },[cart])
+
     const handleAddToCart = (product) => {
         dispatch(addItem(product));
 
@@ -251,7 +258,7 @@ function ProductList({ onHomeClick }) {
     }
     
     const calculateTotalQuantity = () => {
-        return cartItems ? cartItems.reduce((total, item) => total + item.quantity, 0) : 0;
+        return cart.items ? cart.items.reduce((total, item) => total + item.quantity, 0) : 0;
          };
     
     const handleHomeClick = (e) => {
@@ -302,7 +309,7 @@ function ProductList({ onHomeClick }) {
                                     textAnchor="middle"
                                     fill="white"
                                     fontSize="60"
-                                    fontWeight="bold">{calculateTotalQuantity}</text>
+                                    fontWeight="bold">{cartItems}</text>
                             </svg>
                         </h1>
                         </a>
@@ -329,8 +336,8 @@ function ProductList({ onHomeClick }) {
                             <div className="product-description">{plant.description}</div> {/* Display plant description */}
                             <div className="product-cost">{plant.cost}</div> {/* Display plant cost */}
                             <button
-                                style={{color:"gray"}}
-                                disabled={false}
+                                style={addedToCart[plant.name] ? {color:"gray"} : {} }
+                                disabled={addedToCart[plant.name] ? true: false}
                                 className="product-button"
                                 onClick={() => handleAddToCart(plant)} // Handle adding plant to cart
                             >
@@ -343,7 +350,7 @@ function ProductList({ onHomeClick }) {
                     ))}   
                 </div>
             ) : (
-                <CartItem onContinueShopping={handleContinueShopping} />
+                <CartItem onContinueShopping={handleContinueShopping} setAddedToCart={setAddedToCart} />
             )}
         </div>
     );
